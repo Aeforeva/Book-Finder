@@ -18,7 +18,7 @@ import com.example.bookfinder.ui.theme.BookFinderTheme
 @Composable
 fun BookApp() {
     var bookTitle by remember { mutableStateOf("") }
-    val viewModel: BookViewModel = viewModel()
+    val viewModel: BookViewModel = viewModel(factory = BookViewModel.Factory)
 
     Column(modifier = Modifier.padding(8.dp)) {
         Row() {

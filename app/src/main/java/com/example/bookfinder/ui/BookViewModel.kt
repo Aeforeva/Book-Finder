@@ -5,7 +5,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.APPLICATION_KEY
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.initializer
+import androidx.lifecycle.viewmodel.viewModelFactory
+import com.example.bookfinder.BookApplication
+import com.example.bookfinder.data.BookRepository
 import com.example.bookfinder.model.SearchResult
 import com.example.bookfinder.network.retrofitService
 import kotlinx.coroutines.launch
@@ -22,7 +28,7 @@ sealed interface BookUiState {
     data class Error(val error: String) : BookUiState
 }
 
-class BookViewModel() : ViewModel() {
+class BookViewModel(private val bookRepository: BookRepository) : ViewModel() {
 
     var bookUiState: BookUiState by mutableStateOf(BookUiState.Input)
         private set
@@ -32,8 +38,8 @@ class BookViewModel() : ViewModel() {
         viewModelScope.launch {
             bookUiState = BookUiState.Loading
             bookUiState = try {
-                val booksByTitle = retrofitService.getBooks(bookTitle)
-                val bookById = retrofitService.getBookById("24yRRvkgsc8C")
+                val booksByTitle = bookRepository.getBooks(bookTitle)
+                val bookById = bookRepository.getBookById("24yRRvkgsc8C")
 
                 val searchResult =
                     Json { ignoreUnknownKeys = true }.decodeFromString<SearchResult>(booksByTitle)
@@ -44,6 +50,16 @@ class BookViewModel() : ViewModel() {
                 BookUiState.Error(e.toString())
             } catch (e: HttpException) {
                 BookUiState.Error(e.toString())
+            }
+        }
+    }
+
+    companion object {
+        val Factory: ViewModelProvider.Factory = viewModelFactory {
+            initializer {
+                val application = (this[APPLICATION_KEY] as BookApplication)
+                val bookRepository = application.container.bookRepository
+                BookViewModel(bookRepository = bookRepository)
             }
         }
     }
