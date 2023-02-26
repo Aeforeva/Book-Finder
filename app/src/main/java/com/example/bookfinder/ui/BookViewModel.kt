@@ -5,6 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.bookfinder.network.retrofitService
 import kotlinx.coroutines.launch
 import retrofit2.HttpException
 import java.io.IOException
@@ -12,8 +13,8 @@ import java.io.IOException
 sealed interface BookUiState {
     object Input : BookUiState
     object Loading : BookUiState
-    data class Success(val Books: String) : BookUiState
-    object Error : BookUiState
+    data class Success(val books: String) : BookUiState
+    data class Error(val error: String) : BookUiState
 }
 
 class BookViewModel() : ViewModel() {
@@ -26,11 +27,12 @@ class BookViewModel() : ViewModel() {
         viewModelScope.launch {
             bookUiState = BookUiState.Loading
             bookUiState = try {
-                BookUiState.Success(book)
+                BookUiState.Success(retrofitService.getBooks(book))
+//                BookUiState.Success(retrofitService.getBookById("24yRRvkgsc8C"))
             } catch (e: IOException) {
-                BookUiState.Error
+                BookUiState.Error(e.toString())
             } catch (e: HttpException) {
-                BookUiState.Error
+                BookUiState.Error(e.toString())
             }
         }
     }

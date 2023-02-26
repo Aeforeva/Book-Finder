@@ -71,8 +71,8 @@ fun MainScreen(bookUiState: BookUiState) {
     when (bookUiState) {
         is BookUiState.Input -> Text(text = "Input")
         is BookUiState.Loading -> Text(text = "loading")
-        is BookUiState.Success -> Text(text = bookUiState.Books)
-        is BookUiState.Error -> Text(text = "Error")
+        is BookUiState.Success -> Text(text = bookUiState.books)
+        is BookUiState.Error -> Text(text = bookUiState.error)
     }
 }
 
