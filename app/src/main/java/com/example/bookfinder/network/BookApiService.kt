@@ -15,10 +15,10 @@ interface BookApiService {
     @GET("volumes?q=cicero")
     suspend fun getCicero(): String
 
-    @GET("volumes")
-    suspend fun getBooks(@Query("q") book: String): String
+    @GET("volumes") // volumes?q={bookTitle}
+    suspend fun getBooks(@Query("q") bookTitle: String): String
 
-    @GET("volumes/{id}") // 24yRRvkgsc8C
+    @GET("volumes/{id}") // volumes/24yRRvkgsc8C
     suspend fun getBookById(@Path("id") id: String): String
 }
 

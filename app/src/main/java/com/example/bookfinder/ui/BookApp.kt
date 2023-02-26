@@ -6,8 +6,6 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
@@ -19,17 +17,17 @@ import com.example.bookfinder.ui.theme.BookFinderTheme
 
 @Composable
 fun BookApp() {
-    var book by remember { mutableStateOf("") }
+    var bookTitle by remember { mutableStateOf("") }
     val viewModel: BookViewModel = viewModel()
 
     Column(modifier = Modifier.padding(8.dp)) {
         Row() {
             SearchBookField(
-                value = book,
-                onValueChanged = { book = it }
+                value = bookTitle,
+                onValueChanged = { bookTitle = it }
             )
             IconButton(
-                onClick = { viewModel.getBooks(book) },
+                onClick = { viewModel.getBooks(bookTitle) },
                 modifier = Modifier
                     .background(color = MaterialTheme.colorScheme.primary)
                     .height(56.dp) // TODO make it equals SearchBookField
