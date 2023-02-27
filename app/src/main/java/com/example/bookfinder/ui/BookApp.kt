@@ -1,14 +1,21 @@
 package com.example.bookfinder.ui
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -21,10 +28,11 @@ fun BookApp() {
     val viewModel: BookViewModel = viewModel(factory = BookViewModel.Factory)
 
     Column(modifier = Modifier.padding(8.dp)) {
-        Row() {
+        Row(verticalAlignment = Alignment.Bottom) {
             SearchBookField(
                 value = bookTitle,
-                onValueChanged = { bookTitle = it }
+                onValueChanged = { bookTitle = it },
+                onKeyboardDone = { viewModel.getBooks(bookTitle) }
             )
             IconButton(
                 onClick = { viewModel.getBooks(bookTitle) },
@@ -32,7 +40,6 @@ fun BookApp() {
                     .background(color = MaterialTheme.colorScheme.primary)
                     .height(56.dp) // TODO make it equals SearchBookField
                     .aspectRatio(1f)
-
             ) {
                 Icon(
                     painter = painterResource(id = R.drawable.baseline_search_24),
@@ -51,21 +58,28 @@ fun BookApp() {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SearchBookField(
-    value: String,
-    onValueChanged: (String) -> Unit,
+    value: String = stringResource(R.string.search_button),
+    onValueChanged: (String) -> Unit = {},
+    onKeyboardDone: () -> Unit = {},
 ) {
-    TextField(
+    OutlinedTextField(
         value = value,
         onValueChange = onValueChanged,
         label = { Text(stringResource(R.string.book_title)) },
 //        modifier = Modifier.fillMaxWidth(),
         singleLine = true,
-        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text)
+//        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
+        keyboardOptions = KeyboardOptions.Default.copy(
+            imeAction = ImeAction.Search
+        ),
+        keyboardActions = KeyboardActions(
+            onSearch = { onKeyboardDone() }
+        ),
     )
 }
 
 @Composable
-fun MainScreen(bookUiState: BookUiState) {
+fun MainScreen(bookUiState: BookUiState = BookUiState.Input) {
     when (bookUiState) {
         is BookUiState.Input -> Text(text = "Input")
         is BookUiState.Loading -> Text(text = "loading")
@@ -74,7 +88,7 @@ fun MainScreen(bookUiState: BookUiState) {
     }
 }
 
-@Preview(showBackground = true, showSystemUi = true)
+@Preview(showBackground = true)
 @Composable
 fun DefaultPreview() {
     BookFinderTheme {
