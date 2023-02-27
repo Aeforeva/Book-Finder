@@ -4,7 +4,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 
 @Composable
-fun BookMainScreen(bookUiState: BookUiState = BookUiState.Input) {
+fun BookMainScreen(bookUiState: BookUiState, onBookSelected: () -> Unit) {
     when (bookUiState) {
         is BookUiState.Input -> Text(text = "Input")
         is BookUiState.Loading -> Text(text = "loading")

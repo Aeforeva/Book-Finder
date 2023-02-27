@@ -2,4 +2,6 @@
     <string name="app_name">Book Finder</string>
     <string name="book_title">Enter the book title</string>
     <string name="search_button">Search button</string>
+    <string name="back_button">Back button</string>
+    <string name="main_screen_title">"Searching: \"%1$s\""</string>
 </resources>
