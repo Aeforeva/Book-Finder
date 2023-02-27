@@ -11,20 +11,25 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.bookfinder.BookApplication
 import com.example.bookfinder.data.BookRepository
+import com.example.bookfinder.model.Book
+import com.example.bookfinder.model.SearchResult
+import com.example.bookfinder.model.testBook
 import kotlinx.coroutines.launch
 import retrofit2.HttpException
 import java.io.IOException
 
 sealed interface BookUiState {
-    object Input : BookUiState
     object Loading : BookUiState
-    data class Success(val books: String) : BookUiState
+    data class Success(val searchResult: SearchResult) : BookUiState
     data class Error(val error: String) : BookUiState
 }
 
 class BookViewModel(private val bookRepository: BookRepository) : ViewModel() {
 
-    var bookUiState: BookUiState by mutableStateOf(BookUiState.Input)
+    var bookUiState: BookUiState by mutableStateOf(BookUiState.Loading)
+        private set
+
+    lateinit var selectedBook: Book
         private set
 
     fun getBooks(bookTitle: String) {
@@ -32,14 +37,17 @@ class BookViewModel(private val bookRepository: BookRepository) : ViewModel() {
             bookUiState = BookUiState.Loading
             bookUiState = try {
                 val searchResult = bookRepository.getBooks(bookTitle)
-//                val bookById = bookRepository.getBookById("24yRRvkgsc8C")
-                BookUiState.Success(searchResult.toString())
+                BookUiState.Success(searchResult)
             } catch (e: IOException) {
                 BookUiState.Error(e.toString())
             } catch (e: HttpException) {
                 BookUiState.Error(e.toString())
             }
         }
+    }
+
+    fun selectBook(book: Book) {
+        selectedBook = book
     }
 
     companion object {

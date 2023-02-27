@@ -33,12 +33,14 @@ fun BookApp(modifier: Modifier = Modifier) {
         backStackEntry?.destination?.route ?: BookScreen.Search.name
     )
     var searchedBookTitle by rememberSaveable { mutableStateOf("") }
+    var selectedBookTitle by rememberSaveable { mutableStateOf("") }
 
     Scaffold(
         topBar = {
             BookAppBar(
                 currentScreen = currentScreen,
                 searchedBookTitle = searchedBookTitle,
+                selectedBookTitle = selectedBookTitle,
                 canNavigateBack = navController.previousBackStackEntry != null,
                 navigateUp = { navController.navigateUp() }
             )
@@ -47,7 +49,7 @@ fun BookApp(modifier: Modifier = Modifier) {
         NavHost(
             navController = navController,
             startDestination = BookScreen.Search.name,
-            modifier = modifier.padding(innerPadding)
+            modifier = Modifier.padding(innerPadding)
         ) {
             composable(route = BookScreen.Search.name) {
                 BookSearchScreen(
@@ -62,11 +64,16 @@ fun BookApp(modifier: Modifier = Modifier) {
             composable(route = BookScreen.Main.name) {
                 BookMainScreen(
                     bookUiState = viewModel.bookUiState,
-                    onBookSelected = {}
+                    retryAction = { viewModel.getBooks(searchedBookTitle) },
+                    onBookSelected = {
+                        selectedBookTitle = it.volumeInfo.title
+                        viewModel.selectBook(it)
+                        navController.navigate(BookScreen.Detail.name)
+                    }
                 )
             }
             composable(route = BookScreen.Detail.name) {
-                BookDetailScreen()
+                BookDetailScreen(viewModel.selectedBook)
             }
         }
     }
@@ -77,6 +84,7 @@ fun BookApp(modifier: Modifier = Modifier) {
 fun BookAppBar(
     currentScreen: BookScreen,
     searchedBookTitle: String,
+    selectedBookTitle: String,
     canNavigateBack: Boolean,
     navigateUp: () -> Unit,
     modifier: Modifier = Modifier,
@@ -87,12 +95,11 @@ fun BookAppBar(
                 text = when (currentScreen) {
                     BookScreen.Search -> stringResource(id = R.string.app_name)
                     BookScreen.Main -> stringResource(R.string.main_screen_title, searchedBookTitle)
-                    BookScreen.Detail -> searchedBookTitle
+                    BookScreen.Detail -> selectedBookTitle
                 },
                 color = MaterialTheme.colorScheme.onPrimary
             )
         },
-        modifier = modifier,
         navigationIcon = {
             if (canNavigateBack) {
                 IconButton(onClick = navigateUp) {

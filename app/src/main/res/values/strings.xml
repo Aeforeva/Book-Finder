@@ -4,4 +4,6 @@
     <string name="search_button">Search button</string>
     <string name="back_button">Back button</string>
     <string name="main_screen_title">"Searching: \"%1$s\""</string>
+    <string name="loading">Loading</string>
+    <string name="retry">Retry</string>
 </resources>
