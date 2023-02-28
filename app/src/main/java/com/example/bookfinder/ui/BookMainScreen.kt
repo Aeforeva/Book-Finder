@@ -1,11 +1,14 @@
 package com.example.bookfinder.ui
 
 import androidx.compose.animation.core.*
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
+import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -43,22 +46,25 @@ fun BookMainScreen(
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun BooksPreviewList(
     searchResult: SearchResult,
     onBookSelected: (Book) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    LazyVerticalGrid(
-        columns = GridCells.Adaptive(150.dp),
+    LazyVerticalStaggeredGrid(
+        columns = StaggeredGridCells.Adaptive(150.dp),
         modifier = Modifier.fillMaxWidth(),
         contentPadding = PaddingValues(4.dp),
     ) {
         items(
-            items = searchResult.items,
-//            key = { photo -> photo.id }
-        ) { book ->
-            BookPreviewCard(book = book, onBookSelected = onBookSelected)
+            count = searchResult.items.size,
+//            items = searchResult.items,
+            key = { index -> searchResult.items[index].id },
+            contentType = { Book } // ?
+        ) { index ->
+            BookPreviewCard(book = searchResult.items[index], onBookSelected = onBookSelected)
         }
     }
 }

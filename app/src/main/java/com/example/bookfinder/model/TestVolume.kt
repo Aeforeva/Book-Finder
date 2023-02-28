@@ -35,8 +35,23 @@ var testBook = Book(
     testVolume
 )
 
+var testBookOne = Book(
+    "One",
+    testVolume
+)
+
+var testBookTwo = Book(
+    "Two",
+    testVolume
+)
+
+var testBookTree = Book(
+    "Tree",
+    testVolume
+)
+
 val testSearchResult = SearchResult(
     "books#volumes",
     454,
-    listOf(testBook, testBook, testBook)
+    listOf(testBook, testBookOne, testBookTwo, testBookTree)
 )
