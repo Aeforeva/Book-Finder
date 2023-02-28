@@ -90,7 +90,7 @@ fun BookPreviewCard(
             AsyncImage(
                 modifier = Modifier.fillMaxWidth(),
                 model = ImageRequest.Builder(context = LocalContext.current)
-                    .data(imageUrl)
+                    .data(imageUrl?.replace("http", "https"))
                     .crossfade(true)
                     .build(),
                 contentDescription = book.volumeInfo.title,

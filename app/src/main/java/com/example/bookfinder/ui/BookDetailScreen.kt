@@ -35,7 +35,7 @@ fun BookDetailScreen(book: Book) {
         AsyncImage(
             modifier = Modifier.fillMaxWidth(),
             model = ImageRequest.Builder(context = LocalContext.current)
-                .data(imageUrl)
+                .data(imageUrl?.replace("http", "https"))
                 .crossfade(true)
                 .build(),
             contentDescription = book.volumeInfo.title,
@@ -54,6 +54,7 @@ fun BookDetailScreen(book: Book) {
             fontStyle = FontStyle.Italic,
             modifier = Modifier.padding(top = 8.dp)
         )
+        book.volumeInfo.canonicalVolumeLink?.let { Text(text = it, Modifier.padding(top = 8.dp)) }
         book.volumeInfo.subtitle?.let { Text(text = it, Modifier.padding(top = 8.dp)) }
         book.volumeInfo.publisher?.let { Text(text = it, Modifier.padding(top = 8.dp)) }
         book.volumeInfo.publishedDate?.let { Text(text = it, Modifier.padding(top = 8.dp)) }
