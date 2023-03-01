@@ -8,6 +8,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
@@ -22,37 +23,47 @@ fun BookSearchScreen(
     onValueChanged: (String) -> Unit,
     onSearch: (String) -> Unit,
 ) {
-    Box(
-        modifier = Modifier.fillMaxSize(),
-        Alignment.Center
+    Column(
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier.fillMaxSize()
     ) {
-        Row(verticalAlignment = Alignment.Bottom) {
-            SearchBookField(
+        Row(
+            verticalAlignment = Alignment.Bottom,
+        ) {
+            BookSearchField(
                 value = searchedBookTitle,
                 onValueChanged = { onValueChanged(it) },
                 onKeyboardDone = { onSearch(searchedBookTitle) }
             )
-            IconButton(
-                onClick = { onSearch(searchedBookTitle) },
-                modifier = Modifier
-                    .background(color = MaterialTheme.colorScheme.primary)
-                    .height(56.dp) // TODO make it equals SearchBookField
-                    .aspectRatio(1f)
-            ) {
-                Icon(
-                    painter = painterResource(id = R.drawable.baseline_search_24),
-                    tint = MaterialTheme.colorScheme.onPrimary,
-                    contentDescription = stringResource(R.string.search_button),
-                    modifier = Modifier.fillMaxSize()
-                )
+            Box(modifier = Modifier.clip(ShapeDefaults.ExtraSmall)) {
+                IconButton(
+                    onClick = { onSearch(searchedBookTitle) },
+                    modifier = Modifier
+                        .background(color = MaterialTheme.colorScheme.primary)
+                        .height(56.dp) // TODO make it equals SearchBookField
+                        .aspectRatio(1f)
+                ) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.baseline_search_24),
+                        tint = MaterialTheme.colorScheme.onPrimary,
+                        contentDescription = stringResource(R.string.search_button),
+                        modifier = Modifier.fillMaxSize()
+                    )
+                }
             }
         }
+        Icon(
+            painter = painterResource(id = R.drawable.book),
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.primary,
+        )
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SearchBookField(
+fun BookSearchField(
     value: String,
     onValueChanged: (String) -> Unit,
     onKeyboardDone: () -> Unit,

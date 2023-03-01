@@ -4,10 +4,12 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
+import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -15,6 +17,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.bookfinder.R
+import com.example.bookfinder.model.testBook
+import com.example.bookfinder.ui.layouts.BookContentType
 
 enum class BookScreen() {
     Search, // Starter screen
@@ -24,7 +28,7 @@ enum class BookScreen() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun BookApp(modifier: Modifier = Modifier) {
+fun BookApp(windowSize: WindowWidthSizeClass, modifier: Modifier = Modifier) {
 
     val viewModel: BookViewModel = viewModel(factory = BookViewModel.Factory)
     val navController: NavHostController = rememberNavController()
@@ -34,6 +38,16 @@ fun BookApp(modifier: Modifier = Modifier) {
     )
     var searchedBookTitle by rememberSaveable { mutableStateOf("") }
     var selectedBookTitle by rememberSaveable { mutableStateOf("") }
+    var selectedBookId by rememberSaveable { mutableStateOf(0) }
+
+    val contentType = when (windowSize) {
+        WindowWidthSizeClass.Compact -> {
+            BookContentType.LIST_ONLY
+        }
+        else -> {
+            BookContentType.LIST_AND_DETAIL
+        }
+    }
 
     Scaffold(
         topBar = {
@@ -62,15 +76,48 @@ fun BookApp(modifier: Modifier = Modifier) {
                 )
             }
             composable(route = BookScreen.Main.name) {
-                BookMainScreen(
-                    bookUiState = viewModel.bookUiState,
-                    retryAction = { viewModel.getBooks(searchedBookTitle) },
-                    onBookSelected = {
-                        selectedBookTitle = it.volumeInfo.title
-                        viewModel.selectBook(it)
-                        navController.navigate(BookScreen.Detail.name)
+                when (contentType) {
+                    BookContentType.LIST_ONLY -> BookMainScreen(
+                        bookUiState = viewModel.bookUiState,
+                        retryAction = { viewModel.getBooks(searchedBookTitle) },
+                        onBookSelected = {
+                            selectedBookTitle = it.volumeInfo.title
+                            viewModel.selectBook(it)
+                            navController.navigate(BookScreen.Detail.name)
+                        }
+                    )
+
+                    BookContentType.LIST_AND_DETAIL -> Row(
+                        modifier = Modifier.fillMaxSize()
+                    ) {
+                        viewModel.selectBook(testBook)
+                        Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .weight(1f)
+                        ) {
+                            BookMainScreen(
+                                bookUiState = viewModel.bookUiState,
+                                retryAction = { viewModel.getBooks(searchedBookTitle) },
+                                onBookSelected = {
+                                    selectedBookTitle = it.volumeInfo.title
+                                    viewModel.selectBook(it)
+                                },
+                                modifier = Modifier.width(300.dp)
+                            )
+                        }
+                        Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .weight(1f)
+                        ) {
+                            BookDetailScreen(
+                                book = viewModel.selectedBook,
+                                modifier = Modifier.width(300.dp)
+                            )
+                        }
                     }
-                )
+                }
             }
             composable(route = BookScreen.Detail.name) {
                 BookDetailScreen(viewModel.selectedBook)

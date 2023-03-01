@@ -6,4 +6,16 @@
     <string name="main_screen_title">"Searching: \"%1$s\""</string>
     <string name="loading">Loading</string>
     <string name="retry">Retry</string>
+
+    <plurals name="authors">
+        <item quantity="one">author: %1$s</item>
+        <item quantity="other">authors: %1$s</item>
+    </plurals>
+    <string name="subtitle">subtitle: %1$s</string>
+    <string name="publisher">publisher: %1$s</string>
+    <string name="published_date">date: %1$s</string>
+    <string name="page_count">pages: %1$s</string>
+    <string name="language">language: %1$s</string>
+    <string name="rating">rating: %1$s/5 ★ (%2$s)</string>
+    <string name="open_in">Open in</string>
 </resources>
