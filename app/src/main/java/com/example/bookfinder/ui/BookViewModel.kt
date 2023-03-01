@@ -11,9 +11,10 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.bookfinder.BookApplication
 import com.example.bookfinder.data.BookRepository
-import com.example.bookfinder.model.Book
-import com.example.bookfinder.model.SearchResult
-import com.example.bookfinder.model.testBook
+import com.example.bookfinder.model.*
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import retrofit2.HttpException
 import java.io.IOException
@@ -29,14 +30,15 @@ class BookViewModel(private val bookRepository: BookRepository) : ViewModel() {
     var bookUiState: BookUiState by mutableStateOf(BookUiState.Loading)
         private set
 
-    lateinit var selectedBook: Book
-        private set
+    private val _selectedBook = MutableStateFlow(Book(id = "0", volumeInfo = testVolume))
+    val selectedBook: StateFlow<Book> = _selectedBook
 
     fun getBooks(bookTitle: String) {
         viewModelScope.launch {
             bookUiState = BookUiState.Loading
             bookUiState = try {
                 val searchResult = bookRepository.getBooks(bookTitle)
+                selectBook(searchResult.items[0])
                 BookUiState.Success(searchResult)
             } catch (e: IOException) {
                 BookUiState.Error(e.toString())
@@ -47,7 +49,12 @@ class BookViewModel(private val bookRepository: BookRepository) : ViewModel() {
     }
 
     fun selectBook(book: Book) {
-        selectedBook = book
+        _selectedBook.update {
+            it.copy(
+                id = book.id,
+                volumeInfo = book.volumeInfo
+            )
+        }
     }
 
     companion object {

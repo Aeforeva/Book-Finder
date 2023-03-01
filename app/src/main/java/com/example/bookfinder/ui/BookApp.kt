@@ -9,7 +9,6 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -17,7 +16,6 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.bookfinder.R
-import com.example.bookfinder.model.testBook
 import com.example.bookfinder.ui.layouts.BookContentType
 
 enum class BookScreen() {
@@ -37,8 +35,7 @@ fun BookApp(windowSize: WindowWidthSizeClass, modifier: Modifier = Modifier) {
         backStackEntry?.destination?.route ?: BookScreen.Search.name
     )
     var searchedBookTitle by rememberSaveable { mutableStateOf("") }
-    var selectedBookTitle by rememberSaveable { mutableStateOf("") }
-    var selectedBookId by rememberSaveable { mutableStateOf(0) }
+    val selectedBook by viewModel.selectedBook.collectAsState()
 
     val contentType = when (windowSize) {
         WindowWidthSizeClass.Compact -> {
@@ -54,7 +51,7 @@ fun BookApp(windowSize: WindowWidthSizeClass, modifier: Modifier = Modifier) {
             BookAppBar(
                 currentScreen = currentScreen,
                 searchedBookTitle = searchedBookTitle,
-                selectedBookTitle = selectedBookTitle,
+                selectedBookTitle = selectedBook.volumeInfo.title,
                 canNavigateBack = navController.previousBackStackEntry != null,
                 navigateUp = { navController.navigateUp() }
             )
@@ -81,16 +78,12 @@ fun BookApp(windowSize: WindowWidthSizeClass, modifier: Modifier = Modifier) {
                         bookUiState = viewModel.bookUiState,
                         retryAction = { viewModel.getBooks(searchedBookTitle) },
                         onBookSelected = {
-                            selectedBookTitle = it.volumeInfo.title
                             viewModel.selectBook(it)
                             navController.navigate(BookScreen.Detail.name)
                         }
                     )
 
-                    BookContentType.LIST_AND_DETAIL -> Row(
-                        modifier = Modifier.fillMaxSize()
-                    ) {
-                        viewModel.selectBook(testBook)
+                    BookContentType.LIST_AND_DETAIL -> Row() {
                         Box(
                             modifier = Modifier
                                 .fillMaxSize()
@@ -99,11 +92,7 @@ fun BookApp(windowSize: WindowWidthSizeClass, modifier: Modifier = Modifier) {
                             BookMainScreen(
                                 bookUiState = viewModel.bookUiState,
                                 retryAction = { viewModel.getBooks(searchedBookTitle) },
-                                onBookSelected = {
-                                    selectedBookTitle = it.volumeInfo.title
-                                    viewModel.selectBook(it)
-                                },
-                                modifier = Modifier.width(300.dp)
+                                onBookSelected = { viewModel.selectBook(it) },
                             )
                         }
                         Box(
@@ -111,16 +100,13 @@ fun BookApp(windowSize: WindowWidthSizeClass, modifier: Modifier = Modifier) {
                                 .fillMaxSize()
                                 .weight(1f)
                         ) {
-                            BookDetailScreen(
-                                book = viewModel.selectedBook,
-                                modifier = Modifier.width(300.dp)
-                            )
+                            BookDetailScreen(book = selectedBook)
                         }
                     }
                 }
             }
             composable(route = BookScreen.Detail.name) {
-                BookDetailScreen(viewModel.selectedBook)
+                BookDetailScreen(selectedBook)
             }
         }
     }
