@@ -1,5 +1,6 @@
 package com.example.bookfinder.ui
 
+import android.widget.Toast
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
@@ -8,6 +9,7 @@ import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
@@ -63,12 +65,18 @@ fun BookApp(windowSize: WindowWidthSizeClass, orientation: Int, modifier: Modifi
             modifier = Modifier.padding(innerPadding)
         ) {
             composable(route = BookScreen.Search.name) {
+                val context = LocalContext.current
                 BookSearchScreen(
                     searchedBookTitle = searchedBookTitle,
                     onValueChanged = { searchedBookTitle = it },
                     onSearch = {
-                        viewModel.getBooks(it)
-                        navController.navigate(BookScreen.Main.name)
+                        searchedBookTitle = it.replace("\\s+".toRegex(), " ")
+                        if (searchedBookTitle != "" && searchedBookTitle != " ") {
+                            viewModel.getBooks(searchedBookTitle)
+                            navController.navigate(BookScreen.Main.name)
+                        } else {
+                            Toast.makeText(context, R.string.empty_search, Toast.LENGTH_SHORT).show()
+                        }
                     }
                 )
             }
