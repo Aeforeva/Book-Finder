@@ -26,7 +26,7 @@ enum class BookScreen() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun BookApp(windowSize: WindowWidthSizeClass, modifier: Modifier = Modifier) {
+fun BookApp(windowSize: WindowWidthSizeClass, orientation: Int, modifier: Modifier = Modifier) {
 
     val viewModel: BookViewModel = viewModel(factory = BookViewModel.Factory)
     val navController: NavHostController = rememberNavController()
@@ -106,6 +106,14 @@ fun BookApp(windowSize: WindowWidthSizeClass, modifier: Modifier = Modifier) {
                 }
             }
             composable(route = BookScreen.Detail.name) {
+                /**
+                 * When user get here in phone portrait orientation [contentType] = LIST_ONLY
+                 * but then turn phone to landscape, [contentType] should become LIST_AND_DETAIL
+                 * so it navigate back to route = [BookScreen.Main.name]
+                 * */
+                if (orientation == 2) {
+                    navController.navigateUp()
+                }
                 BookDetailScreen(selectedBook)
             }
         }
